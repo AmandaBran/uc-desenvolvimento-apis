@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Optional
 
 app = FastAPI (title='API de Filmes', version='1.0.0')
 
@@ -15,10 +14,10 @@ proximo_id = 4 # Controlar o próximo iD
 
 class FilmeCreate(BaseModel):
 
-    titulo: str
+    titulo:  str
     diretor: str
-    ano: int
-    nota: Optional[float] = None
+    ano:     int
+    nota:    float
 
 # GET /filmes -> lista todos os filmes
 @app.get('/filmes')
@@ -28,28 +27,21 @@ def listar_filmes():
 # GET /filmes/(id) -> busca um filme pelo ID
 @app.get('/filmes/{filme_id}')
 def buscar_filme(filme_id: int):
-    filme = next(
-        (f for f in filmes if f['id'] == filme_id),
-        None # valor padrao se não encontrar
-    )   
-    if filme is None:
-        return {"erro": f"Filme {filme_id} não encontrado"}
+    filme = next((f for f in filmes if f['id'] == filme_id), None)
+    if not filme:
+        return {'erro': f'Filme {filme_id} não encontrado'}
     return filme
 
-# POST /filmes -> cria um novo filme
 @app.post('/filmes', status_code=201)
 def criar_filme(filme: FilmeCreate):
     global proximo_id
-
-    # Cria o novo filme com o próximo ID disponivel
-    novo_filme = {
-        'id': proximo_id,
-        'titulo': filme.titulo,
+    novo = {
+        'id':      proximo_id,
+        'titulo':  filme.titulo,
         'diretor': filme.diretor,
-        'ano': filme.ano,
-        'nota': filme.nota
+        'ano':     filme.ano,
+        'nota':    filme.nota,
     }
-    filmes.append(novo_filme)
+    filmes.append(novo)
     proximo_id += 1
-
-    return novo_filme
+    return novo
